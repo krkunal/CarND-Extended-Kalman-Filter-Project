@@ -42,7 +42,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   return rmse;
 }
 
-MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
+MatrixXd Tools::CalculateJacobian(const VectorXd& x_state, const Eigen::MatrixXd& Hj_default) {
   MatrixXd Hj(3,4);
   // recover state parameters
   float px = x_state(0);
@@ -53,6 +53,7 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
   // check division by zero
   if (px == 0 && py == 0) {
       cerr << "Division by zero." << endl;
+      Hj = Hj_default;
   }
   else {
     // compute the Jacobian matrix
@@ -78,13 +79,16 @@ VectorXd Tools::MapCartesianToPolar(const VectorXd& x_state) {
   // check division by zero
   if (fabs(c1) < 0.0001) {
     cout << "MapCartesianToPolar () - Error - Division by Zero" << endl;
-    return hx;
+    hx << 0, 
+          0, 
+          0;
   }
-  hx << c1, 
-        atan2(py, px), 
-        c2 / c1;
-  // cout << atan2(py, px) << endl;
-   return hx;
+  else {
+    hx << c1, 
+          atan2(py, px), 
+          c2 / c1;
+  }
+  return hx;
 }
 
 double Tools::NormalizePhi(double& phi) {

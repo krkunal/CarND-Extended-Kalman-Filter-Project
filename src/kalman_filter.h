@@ -67,7 +67,7 @@ class KalmanFilter {
   Eigen::MatrixXd R_;
  
  private:
-  // tools object used to compute Jacobian matrix & crartesian to polar mapping
+  // tools object used to compute Jacobian matrix & cartesian to polar mapping
   Tools tools;
 };
 

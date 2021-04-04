@@ -52,13 +52,10 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   // Perform the mapping from cartesian to polar coords.
   VectorXd hx_ = tools.MapCartesianToPolar(x_);
   VectorXd y = z - hx_; // 3x1
-  // float phi = y(1);
-  cout << y(1) << endl;
+  // Normalize the phi component of y.
   y(1) = tools.NormalizePhi(y(1));
-  cout << y(1) << endl;
-  
   // get the Jacobian Matrix Hj
-  MatrixXd Hj = tools.CalculateJacobian(x_); // 3x4
+  MatrixXd Hj = tools.CalculateJacobian(x_, H_); // 3x4  
   MatrixXd Hjt = Hj.transpose(); // 4x3 
   MatrixXd S = Hj * P_ * Hjt + R_; // 3x3
   MatrixXd Si = S.inverse(); // 3x3
