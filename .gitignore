@@ -4,6 +4,9 @@
 # build files
 build/
 
+# sim files
+term2_sim_linux/
+
 # editor config
 .vscode/
 

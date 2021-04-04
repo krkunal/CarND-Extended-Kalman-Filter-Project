@@ -1,7 +1,11 @@
 #include "kalman_filter.h"
+#include "tools.h"
+#include <iostream>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using std::cout;
+using std::endl;
 
 /* 
  * Please note that the Eigen library does not initialize 
@@ -23,19 +27,47 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
 }
 
 void KalmanFilter::Predict() {
-  /**
-   * TODO: predict the state
-   */
+  x_ = F_ * x_;
+  MatrixXd Ft = F_.transpose();
+  P_ = F_ * P_ * Ft + Q_;
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
-  /**
-   * TODO: update the state by using Kalman Filter equations
-   */
+  VectorXd z_pred = H_ * x_; // 4x1
+  VectorXd y = z - z_pred; // 4x1
+  MatrixXd Ht = H_.transpose(); // 4x4
+  MatrixXd S = H_ * P_ * Ht + R_; // 4x4
+  MatrixXd Si = S.inverse(); // 4x4
+  MatrixXd PHt = P_ * Ht; // 4x4
+  MatrixXd K = PHt * Si; // 4x4
+
+  //new estimate
+  x_ = x_ + (K * y); // 4x1
+  long x_size = x_.size();
+  MatrixXd I = MatrixXd::Identity(x_size, x_size);
+  P_ = (I - K * H_) * P_; // 4x4
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
-  /**
-   * TODO: update the state by using Extended Kalman Filter equations
-   */
+  // Perform the mapping from cartesian to polar coords.
+  VectorXd hx_ = tools.MapCartesianToPolar(x_);
+  VectorXd y = z - hx_; // 3x1
+  // float phi = y(1);
+  cout << y(1) << endl;
+  y(1) = tools.NormalizePhi(y(1));
+  cout << y(1) << endl;
+  
+  // get the Jacobian Matrix Hj
+  MatrixXd Hj = tools.CalculateJacobian(x_); // 3x4
+  MatrixXd Hjt = Hj.transpose(); // 4x3 
+  MatrixXd S = Hj * P_ * Hjt + R_; // 3x3
+  MatrixXd Si = S.inverse(); // 3x3
+  MatrixXd PHt = P_ * Hjt; // 4x3
+  MatrixXd K = PHt * Si; // 4x3
+
+  //new estimate
+  x_ = x_ + (K * y); // 4x1
+  long x_size = x_.size();
+  MatrixXd I = MatrixXd::Identity(x_size, x_size);
+  P_ = (I - K * Hj) * P_; // 4x4
 }

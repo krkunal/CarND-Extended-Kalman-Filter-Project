@@ -27,6 +27,16 @@ class Tools {
    */
   Eigen::MatrixXd CalculateJacobian(const Eigen::VectorXd& x_state);
 
+  /**
+   * A helper method to map from the cartesian to polar coordinate
+   */
+  Eigen::VectorXd MapCartesianToPolar(const Eigen::VectorXd& x_state);
+
+  /**
+   * Normalize the value of phi between +/- Pi
+   */ 
+  double NormalizePhi(double& phi);
+
 };
 
 #endif  // TOOLS_H_
