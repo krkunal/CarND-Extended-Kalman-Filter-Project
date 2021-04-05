@@ -56,12 +56,14 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state, const Eigen::MatrixXd
       Hj = Hj_default;
   }
   else {
+    double norm = px*px + py*py;
+    double sqrt_norm = sqrt(norm);
+    double pxv =  (vy*px - vx*py) / pow(norm, 3/2); 
     // compute the Jacobian matrix
-    Hj << px / (sqrt(px*px + py*py)), py / (sqrt(px*px + py*py)), 0, 0, 
-          -py / (px*px + py*py), px / (px*px + py*py), 0, 0,
-          py*(vx*py - vy*px) / pow(px*px + py*py, 3/2), px*(vy*px - vx*py) / pow(px*px + py*py, 3/2), px / (sqrt(px*px + py*py)), py / (sqrt(px*px + py*py));   
+    Hj << px / sqrt_norm, py / sqrt_norm, 0, 0, 
+          -py / norm, px / norm, 0, 0,
+          -py * pxv, px * pxv, px / sqrt_norm, py / sqrt_norm;
   }
-
   return Hj; 
 }
 
@@ -74,25 +76,25 @@ VectorXd Tools::MapCartesianToPolar(const VectorXd& x_state) {
   float vy = x_state(3);
 
   // pre-compute repeated terms
-  float c1 = sqrt(px*px + py*py);
-  float c2 = px*vx + py*vy;
+  float sqrt_norm = sqrt(px*px + py*py);
+  float pdotv = px*vx + py*vy;
   // check division by zero
-  if (fabs(c1) < 0.0001) {
+  if (fabs(sqrt_norm) < 0.0001) {
     cout << "MapCartesianToPolar () - Error - Division by Zero" << endl;
     hx << 0, 
           0, 
           0;
   }
   else {
-    hx << c1, 
+    hx << sqrt_norm, 
           atan2(py, px), 
-          c2 / c1;
+          pdotv / sqrt_norm;
   }
   return hx;
 }
 
-double Tools::NormalizePhi(double& phi) {
-  // Normalize phi component in y
+void Tools::NormalizePhi(double& phi) {
+  // Normalize phi component in y E [-PI, PI]
   while (phi > M_PI | phi < - M_PI)
   {
     if (phi > M_PI)
@@ -104,5 +106,4 @@ double Tools::NormalizePhi(double& phi) {
     }
     
   }
-  return phi;
 }

@@ -35,7 +35,7 @@ class Tools {
   /**
    * Normalize the value of phi between +/- Pi
    */ 
-  double NormalizePhi(double& phi);
+  void NormalizePhi(double& phi);
 
 };
 

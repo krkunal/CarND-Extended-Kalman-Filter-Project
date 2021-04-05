@@ -53,7 +53,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   VectorXd hx_ = tools.MapCartesianToPolar(x_);
   VectorXd y = z - hx_; // 3x1
   // Normalize the phi component of y.
-  y(1) = tools.NormalizePhi(y(1));
+  tools.NormalizePhi(y(1));
   // get the Jacobian Matrix Hj
   MatrixXd Hj = tools.CalculateJacobian(x_, H_); // 3x4  
   MatrixXd Hjt = Hj.transpose(); // 4x3 
